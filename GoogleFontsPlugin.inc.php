@@ -27,6 +27,7 @@ class GoogleFontsPlugin extends GenericPlugin
 
         HookRegistry::register('Template::Settings::website::appearance', [$this, 'addSettingsTab']);
         HookRegistry::register('LoadHandler', [$this, 'addSettingsHandler']);
+        HookRegistry::register('TemplateManager::display', [$this, 'addFontStyle']);
 
         return true;
     }
@@ -86,7 +87,7 @@ class GoogleFontsPlugin extends GenericPlugin
             $error = __('plugins.generic.googleFonts.technicalError', ['error' => $e->getMessage()]);
         }
 
-        $enabledFonts = $this->getSetting($contextId, self::FONTS_SETTING) ?? [];
+        $enabledFonts = $this->getEnabledFonts($contextId);
 
         $templateMgr->assign([
             'googleFontsEnabled' => $this->getFonts($enabledFonts, $options),
@@ -117,10 +118,60 @@ class GoogleFontsPlugin extends GenericPlugin
     }
 
     /**
+     * Add font <style> tag to theme frontend pages
+     *
+     * Adds the @font-face definitions to all frontend pages.
+     * The <style> attribute is attached to the {load_stylesheet}
+     * template tag. Themes must use the following in their
+     * template files.
+     *
+	 * {load_stylesheet context="frontend"}
+     */
+    public function addFontStyle(string $hookName, array $args): bool
+    {
+        /** @var TemplateManager */
+        $templateMgr = $args[0];
+        $request = Application::get()->getRequest();
+        $context = $request->getContext();
+
+        $enabledFonts = $this->getEnabledFonts($context?->getId() ?? CONTEXT_ID_NONE);
+
+        if (!$enabledFonts) {
+            return false;
+        }
+
+        try {
+            $fontfaces = $this->getFontFaces($enabledFonts);
+        } catch (GoogleFontsPluginException $e) {
+            /**
+             * TODO: Log the error somewhere
+             *
+             * A failed font load shouldn't crash the site, so
+             * we trap the exception and fail silently.
+             *
+             * Ideally, we would log the error somewhere so
+             * that it can be surfaced in the admin area.
+             */
+            return false;
+        }
+
+        $templateMgr->addStyleSheet(
+            'google-fonts',
+            $fontfaces,
+            [
+                'inline' => true,
+                'contexts' => ['frontend'],
+            ]
+        );
+
+        return false;
+    }
+
+    /**
      * Load a JSON file in the plugin directory
      *
      * @param string $path Path to the file relative to this plugin's root directory
-     * @throws Exception
+     * @throws GoogleFontsPluginException
      */
     public function loadJsonFile(string $path): mixed
     {
@@ -144,6 +195,16 @@ class GoogleFontsPlugin extends GenericPlugin
     }
 
     /**
+     * Get the enabled fonts settings
+     *
+     * @return string[]
+     */
+    protected function getEnabledFonts(?int $contextId): array
+    {
+        return $this->getSetting($contextId, self::FONTS_SETTING) ?? [];
+    }
+
+    /**
      * Get font details for requested fonts
      *
      * Gets a subset of the full font options stored in self::FONTS_FILE.
@@ -159,5 +220,57 @@ class GoogleFontsPlugin extends GenericPlugin
             }
         }
         return $matches;
+    }
+
+    /**
+     * Get @font-face definitions for enabled fonts
+     *
+     * @param string[] $fonts
+     * @throws GoogleFontsPluginException
+     */
+    protected function getFontFaces(array $fonts): string
+    {
+        $request = Application::get()->getRequest();
+        $context = $request->getContext();
+        $publicFileManager = new PublicFileManager();
+
+        $basePath = join('/', [
+            $request->getBaseUrl(),
+            $context
+                ? $publicFileManager->getContextFilesPath($context->getId())
+                : $publicFileManager->getSiteFilesPath(),
+            self::FONTS_PUBLIC_FILE_DIR,
+        ]);
+
+        $output = [];
+
+        foreach ($fonts as $font) {
+            try {
+                $embeds = $this->loadJsonFile("fonts/{$font}/embed.json");
+            } catch (GoogleFontsPluginException $e) {
+                throw $e;
+            }
+            foreach ($embeds as $embed) {
+                $output[] = "/* {$embed->subset} */";
+                $output[] = str_replace(
+                    './fonts',
+                    $basePath,
+                    $embed->font,
+                );
+            }
+        }
+
+        return join("\n", $output);
+    }
+
+    /**
+     * Get the URL to the plugin's root directory
+     */
+    protected function getPluginUrl(): string
+    {
+        $request = Application::get()->getRequest();
+        $baseUrl = rtrim($request->getBaseUrl(), '/');
+        $pluginPath = rtrim($this->getPluginPath(), '/');
+        return "{$baseUrl}/{$pluginPath}";
     }
 }
