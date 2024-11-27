@@ -1,0 +1,8 @@
+msgid "plugins.generic.googleFonts.displayName"
+msgstr "Google Fonts"
+
+msgid "plugins.generic.googleFonts.description"
+msgstr "Use any Google Font in your theme without compromising visitor privacy."
+
+msgid "plugins.generic.googleFonts.technicalError"
+msgstr "An unexpected error occurred. Please contact your system administrator. The following error was encountered: {$error}"
