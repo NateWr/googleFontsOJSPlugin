@@ -294,7 +294,7 @@ class GoogleFontsPlugin extends GenericPlugin
             self::FONTS_PUBLIC_FILE_DIR,
         ]);
 
-        $output = $fonts->map(function(GoogleFont $font) use ($basePath, $output) {
+        $output = $fonts->map(function(GoogleFont $font) use ($basePath) {
             try {
                 $embeds = $this->loadJsonFile("fonts/{$font->id}/embed.json");
             } catch (GoogleFontsPluginException $e) {
