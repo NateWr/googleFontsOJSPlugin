@@ -27,3 +27,42 @@ msgstr "You shouldn't use more than one or two fonts on your site. <a href=\"{$u
 
 msgid "plugins.generic.googleFonts.technicalError"
 msgstr "An unexpected error occurred. Please contact your system administrator. The following error was encountered: {$error}"
+
+msgid "plugins.generic.googleFonts.help.title"
+msgstr "Google Fonts Plugin: Common Questions and Answers"
+
+msgid "plugins.generic.googleFonts.help.about"
+msgstr "The Google Fonts plugin for OJS, OMP and OPS helps you use any <a href=\"{$googleFontsUrl}\" target=\"_blank\">Google Font</a> in your theme without compromising visitor privacy. It downloads, stores and serves the custom font files to your visitors from your own server, so that they aren't tracked by Google."
+
+msgid "plugins.generic.googleFonts.help.fontsNotShown"
+msgstr "I added fonts but they aren't showing up on my site"
+
+msgid "plugins.generic.googleFonts.help.fontsNotShown.answer"
+msgstr "The plugin loads the font files onto your site, but they will not change how your site appears until they are assigned to the text elements on your site. If your theme doesn't do this for you automatically, you will need to add custom CSS code to your site. You can add custom CSS to your site by uploading a <code>.css</code> file to <strong>Settings > Appearance > Advanced > Style sheet</strong>."
+
+msgid "plugins.generic.googleFonts.help.fontsNotShown.example"
+msgstr "The following is an example of CSS code that will apply the <strong>Urbanist</strong> font to some of the text on your site."
+
+msgid "plugins.generic.googleFonts.help.fontsNotShown.contactAdmin"
+msgstr "If you're not sure how to use this, you may need to contact technical support for your journal, press or preprint server."
+
+msgid "plugins.generic.googleFonts.help.tooManyFonts"
+msgstr "How many fonts should be used?"
+
+msgid "plugins.generic.googleFonts.help.tooManyFonts.answer"
+msgstr "You should almost never use more than one or two fonts on your site. Professional designers pair their type faces carefully and only rarely use more than two for a single website. If you don't have a professional designer involved in the choices you make, you should choose one font for your site and stick to that."
+
+msgid "plugins.generic.googleFonts.help.gdpr"
+msgstr "How does this plugin help protect my visitors' privacy?"
+
+msgid "plugins.generic.googleFonts.help.gdpr.answer"
+msgstr "When you add a font with this plugin, your server downloads and stores the font files from Google. When someone visits your website, they are sent the font file from your server instead of Google's server."
+
+msgid "plugins.generic.googleFonts.help.gdpr.compliance"
+msgstr "This helps comply with some privacy regulation, such as Europe's <a href=\"{$gdprUrl}\" target=\"_blank\">GDPR</a>, without requiring you to add legal language to your site's privacy notice or making your users click a consent popup."
+
+msgid "plugins.generic.googleFonts.help.license"
+msgstr "What license do these fonts use?"
+
+msgid "plugins.generic.googleFonts.help.license.answer"
+msgstr "All of the Google Fonts are under a permissive license which allows you to use them free of charge. Most fonts use the <a href=\"{$silUrl}\" target=\"_blank\">SIL Open Font License</a>, but each font may be different. Click the link beside each font you have added to learn more about the license on the Google Fonts website."

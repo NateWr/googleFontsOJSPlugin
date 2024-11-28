@@ -116,6 +116,15 @@ class GoogleFontsHandler extends Handler
     }
 
     /**
+     * Show the help page
+     */
+    public function help(array $args, Request $request): void
+    {
+        $templateMgr = TemplateManager::getManager($request);
+        $templateMgr->display($this->plugin->getTemplateResource('help.tpl'));
+    }
+
+    /**
      * Redirect back to the settings page
      */
     protected function sendRedirect(Request $request): void

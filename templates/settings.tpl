@@ -7,7 +7,7 @@
       <div class="pkpNotification pkpNotification--warning">
         {translate
           key="plugins.generic.googleFonts.fontCountWarning"
-          url="{url page="google-fonts" op="help" anchor="too-many-fonts"}"
+          url="{url page="google-font" op="help" anchor="too-many-fonts"}"
         }
       </div>
     {/if}
@@ -32,7 +32,20 @@
                   href="https://fonts.google.com/specimen/{$font->family|escape|replace:' ':'+'}"
                   target="_blank"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                  <span class="pkp_screen_reader">
+                    {translate
+                      key="common.viewWithName"
+                      name="{$font->family}"
+                    }
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="currentColor"
+                  >
                     <path d="M224.62-160q-27.62 0-46.12-18.5Q160-197 160-224.62v-510.76q0-27.62 18.5-46.12Q197-800 224.62-800h224.61v40H224.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v510.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69h510.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-224.61h40v224.61q0 27.62-18.5 46.12Q763-160 735.38-160H224.62Zm164.92-201.23-28.31-28.31L731.69-760H560v-40h240v240h-40v-171.69L389.54-361.23Z"/>
                   </svg>
                 </a>
@@ -59,7 +72,7 @@
         <div>
           {translate
             key="plugins.generic.googleFonts.howToUse"
-            url="{url page="google-fonts" op="help"}"
+            url="{url page="google-font" op="help" anchor="not-visible"}"
           }
         </div>
       {/if}
