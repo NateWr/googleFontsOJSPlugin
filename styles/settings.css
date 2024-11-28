@@ -1,0 +1,57 @@
+.google-fonts-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.google-fonts-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.google-fonts-settings-section-header  {
+  display: flex;
+  flex-direction: column;
+}
+
+.google-fonts-settings-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.google-fonts-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.google-fonts-settings-list > li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid #bbb;
+}
+
+.google-fonts-settings-font-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 700;
+}
+
+
+.google-fonts-settings-font-title a {
+  line-height: 1;
+}
+
+.google-fonts-settings-add-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

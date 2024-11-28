@@ -30,6 +30,7 @@ class GoogleFontsPlugin extends GenericPlugin
 
         HookRegistry::register('Template::Settings::website::appearance', [$this, 'addSettingsTab']);
         HookRegistry::register('Template::Settings::admin::appearance', [$this, 'addSettingsTab']);
+        HookRegistry::register('TemplateManager::display', [$this, 'addSettingsStyles']);
         HookRegistry::register('LoadHandler', [$this, 'addSettingsHandler']);
         HookRegistry::register('TemplateManager::display', [$this, 'addFontStyle']);
 
@@ -92,6 +93,11 @@ class GoogleFontsPlugin extends GenericPlugin
             $error = __('plugins.generic.googleFonts.technicalError', ['error' => $e->getMessage()]);
         }
 
+        $templateMgr->addStyleSheet(
+            'google-fonts-settings',
+            "{$this->getPluginUrl()}/styles/settings.css",
+        );
+
         $templateMgr->assign([
             'googleFontsEnabled' => $this->getEnabledFonts()->values()->all(),
             'googleFontsError' => $error ?? '',
@@ -102,7 +108,25 @@ class GoogleFontsPlugin extends GenericPlugin
 
         $output = $template;
 
-        return true;
+        return false;
+    }
+
+    /**
+     * Add the stylesheet for the settings tab
+     */
+    public function addSettingsStyles(string $hookName, array $args): bool
+    {
+        /** @var TemplateManager */
+        $templateMgr = $args[0];
+        $templateMgr->addStyleSheet(
+            'google-fonts-settings',
+            $this->getPluginUrl() . '/styles/settings.css',
+            [
+                'contexts' => ['backend-management'],
+            ]
+        );
+
+        return false;
     }
 
     /**

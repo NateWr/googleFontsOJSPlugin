@@ -4,5 +4,26 @@ msgstr "Google Fonts"
 msgid "plugins.generic.googleFonts.description"
 msgstr "Use any Google Font in your theme without compromising visitor privacy."
 
+msgid "plugins.generic.googleFonts.fonts"
+msgstr "Fonts"
+
+msgid "plugins.generic.googleFonts.selectFont"
+msgstr "Select a Font"
+
+msgid "plugins.generic.googleFonts.addFont"
+msgstr "Add Font"
+
+msgid "plugins.generic.googleFonts.addFont.description"
+msgstr "Select any one of the <a href=\"{$url}\" target=\"_blank\">Google Fonts</a> and add it to your site."
+
+msgid "plugins.generic.googleFonts.noFontsEnabled"
+msgstr "You have not added any fonts to your site."
+
+msgid "plugins.generic.googleFonts.howToUse"
+msgstr "Not seeing the fonts on your site? Learn how to <a href=\"{$url}\" target=\"_blank\">use a custom font</a> in your theme."
+
+msgid "plugins.generic.googleFonts.fontCountWarning"
+msgstr "You shouldn't use more than one or two fonts on your site. <a href=\"{$url}\" target=\"_blank\">Learn more</a>"
+
 msgid "plugins.generic.googleFonts.technicalError"
 msgstr "An unexpected error occurred. Please contact your system administrator. The following error was encountered: {$error}"
