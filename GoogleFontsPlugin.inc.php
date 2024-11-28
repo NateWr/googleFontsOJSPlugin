@@ -59,7 +59,7 @@ class GoogleFontsPlugin extends GenericPlugin
                             'settings',
                             'website',
                             null,
-                            'appearance/advanced'
+                            'appearance/google-fonts'
                         ),
                         $this->getDisplayName()
                     ),
