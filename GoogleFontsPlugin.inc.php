@@ -270,26 +270,26 @@ class GoogleFontsPlugin extends GenericPlugin
             self::FONTS_PUBLIC_FILE_DIR,
         ]);
 
-        $output = [];
-
-        $fonts->each(function(GoogleFont $font) use ($basePath, $output) {
+        $output = $fonts->map(function(GoogleFont $font) use ($basePath, $output) {
             try {
                 $embeds = $this->loadJsonFile("fonts/{$font->id}/embed.json");
             } catch (GoogleFontsPluginException $e) {
                 throw $e;
             }
+            $embedStatements = [];
             foreach ($embeds as $embed) {
-                $output[] = "/* {$embed->subset} */";
-                $output[] = str_replace(
+                $embedStatements[] = "/* {$embed->subset} */";
+                $embedStatements[] = str_replace(
                     './fonts',
                     $basePath,
                     $embed->font,
                 );
             }
-
+            return $embedStatements;
         });
 
-        return join("\n", $output);
+
+        return join("\n", $output->flatten()->toArray());
     }
 
     /**
