@@ -1,7 +1,10 @@
 <?php
 
+use Illuminate\Support\Collection;
+
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('plugins.generic.googleFonts.exceptions.GoogleFontsPluginException');
+import('plugins.generic.googleFonts.classes.GoogleFont');
 
 class GoogleFontsPlugin extends GenericPlugin
 {
@@ -90,7 +93,7 @@ class GoogleFontsPlugin extends GenericPlugin
         }
 
         $templateMgr->assign([
-            'googleFontsEnabled' => $this->getEnabledFonts(),
+            'googleFontsEnabled' => $this->getEnabledFonts()->values()->all(),
             'googleFontsError' => $error ?? '',
             'googleFontsOptions' => $options,
         ]);
@@ -134,7 +137,7 @@ class GoogleFontsPlugin extends GenericPlugin
 
         $enabledFonts = $this->getEnabledFonts();
 
-        if (!$enabledFonts) {
+        if (!$enabledFonts->count()) {
             return false;
         }
 
@@ -197,7 +200,7 @@ class GoogleFontsPlugin extends GenericPlugin
      *
      * Gets a subset of the full font options stored in self::FONTS_FILE.
      *
-     * @param string[] $fonts The ID/dirname of the requested fonts
+     * @param stdClass[] $fonts
      */
     public function getFonts(array $fonts, array $options): array
     {
@@ -227,23 +230,33 @@ class GoogleFontsPlugin extends GenericPlugin
     /**
      * Get the enabled fonts settings
      *
-     * @return string[]
+     * @return Collection<GoogleFont>
      */
-    public function getEnabledFonts(?int $contextId = null): array
+    public function getEnabledFonts(?int $contextId = null): Collection
     {
         if (is_null($contextId)) {
             $contextId = Application::get()->getRequest()->getContext()?->getId() ?? CONTEXT_ID_NONE;
         }
-        return $this->getSetting($contextId, self::FONTS_SETTING) ?? [];
+        $enabled = collect($this->getSetting($contextId, self::FONTS_SETTING) ?? []);
+
+        return $enabled->map(fn(array $font) => new GoogleFont(
+            id: $font['id'],
+            family: $font['family'],
+            category: $font['category'],
+            subsets: $font['subsets'],
+            variants: $font['variants'],
+            lastModified: $font['lastModified'],
+            version: $font['version'],
+        ));
     }
 
     /**
      * Get @font-face definitions for enabled fonts
      *
-     * @param string[] $fonts
+     * @param Collection<GoogleFont> $fonts
      * @throws GoogleFontsPluginException
      */
-    protected function getFontFaces(array $fonts): string
+    protected function getFontFaces(Collection $fonts): string
     {
         $request = Application::get()->getRequest();
         $context = $request->getContext();
@@ -259,9 +272,9 @@ class GoogleFontsPlugin extends GenericPlugin
 
         $output = [];
 
-        foreach ($fonts as $id => $name) {
+        $fonts->each(function(GoogleFont $font) use ($basePath, $output) {
             try {
-                $embeds = $this->loadJsonFile("fonts/{$id}/embed.json");
+                $embeds = $this->loadJsonFile("fonts/{$font->id}/embed.json");
             } catch (GoogleFontsPluginException $e) {
                 throw $e;
             }
@@ -273,7 +286,8 @@ class GoogleFontsPlugin extends GenericPlugin
                     $embed->font,
                 );
             }
-        }
+
+        });
 
         return join("\n", $output);
     }

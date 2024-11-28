@@ -1,9 +1,8 @@
 <?php
 
-use function PHPUnit\Framework\directoryExists;
-
 import('classes.handler.Handler');
 import('plugins.generic.googleFonts.exceptions.GoogleFontsPluginException');
+import('plugins.generic.googleFonts.classes.GoogleFont');
 
 /**
  * Page handler for Google Fonts plugin settings
@@ -57,10 +56,22 @@ class GoogleFontsHandler extends Handler
             ? $request->getContext()->getId()
             : CONTEXT_ID_NONE;
 
-        $fonts = $this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [];
-        $fonts[$font] = $fontDetails->family;
-        $fonts = array_unique($fonts);
-        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $fonts);
+        $fonts = collect($this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [])
+            ->push(
+                new GoogleFont(
+                    id: $fontDetails->id,
+                    family: $fontDetails->family,
+                    category: $fontDetails->category,
+                    subsets: $fontDetails->subsets,
+                    variants: $fontDetails->variants,
+                    lastModified: $fontDetails->lastModified,
+                    version: $fontDetails->version,
+                )
+            )
+            ->unique('id')
+            ->sortBy('family');
+
+        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $fonts->values()->all());
 
         $this->sendRedirect($request);
     }
@@ -94,9 +105,10 @@ class GoogleFontsHandler extends Handler
             ? $request->getContext()->getId()
             : CONTEXT_ID_NONE;
 
-        $enabled = $this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [];
-        unset($enabled[$font]);
-        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $enabled);
+        $enabled = collect($this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [])
+            ->where('id', '!=', $font);
+
+        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $enabled->values()->all());
 
         $this->delete($font);
 

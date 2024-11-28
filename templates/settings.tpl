@@ -5,20 +5,20 @@
   <div class="google-fonts-settings">
     <h1>Added Fonts</h1>
     <ul>
-      {foreach from=$googleFontsEnabled key="id" item="family"}
+      {foreach from=$googleFontsEnabled item="font"}
         <li>
           <a
-            href="https://fonts.google.com/specimen/{$family|escape|replace:' ':'+'}"
+            href="https://fonts.google.com/specimen/{$font->family|escape|replace:' ':'+'}"
             target="_blank"
           >
-            {$family}
+            {$font->family}
           </a>
           <form
             action={url page="google-font" op="remove"}
             method="post"
           >
             {csrf}
-            <input type="hidden" name="font" value="{$id}">
+            <input type="hidden" name="font" value="{$font->id}">
             <button type="submit">
               Remove
             </button>
