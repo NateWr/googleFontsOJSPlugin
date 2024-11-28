@@ -38,34 +38,37 @@ class GoogleFontsPlugin extends GenericPlugin
      * This link redirects to the settings tab at
      * Settings > Website > Appearance > Google Fonts.
      */
-    public function getActions($request, $verb) {
-		import('lib.pkp.classes.linkAction.request.RedirectAction');
-		return array_merge(
-			$this->getEnabled()
-                ? [
-                    new LinkAction(
-                        'settings',
-                        new RedirectAction(
-                            $request->getDispatcher()->url(
-                                $request,
-                                ROUTE_PAGE,
-                                null,
-                                'management',
-                                'settings',
-                                'website',
-                                null,
-                                'appearance/advanced'
-                            ),
-                            $this->getDisplayName()
+    public function getActions($request, $verb)
+    {
+        if (!$this->getEnabled()) {
+            return parent::getActions($request, $verb);
+        }
+
+        import('lib.pkp.classes.linkAction.request.RedirectAction');
+        return array_merge(
+            [
+                new LinkAction(
+                    'settings',
+                    new RedirectAction(
+                        $request->getDispatcher()->url(
+                            $request,
+                            ROUTE_PAGE,
+                            null,
+                            'management',
+                            'settings',
+                            'website',
+                            null,
+                            'appearance/advanced'
                         ),
-                        __('manager.plugins.settings'),
-                        null
+                        $this->getDisplayName()
                     ),
-                ]
-                : [],
-			parent::getActions($request, $verb)
-		);
-	}
+                    __('manager.plugins.settings'),
+                    null
+                ),
+            ],
+            parent::getActions($request, $verb)
+        );
+    }
 
     /**
      * Add settings tab to edit Google Font settings
@@ -74,10 +77,8 @@ class GoogleFontsPlugin extends GenericPlugin
      */
     public function addSettingsTab(string $hookName, array $args): bool
     {
-        $output =& $args[2];
+        $output = &$args[2];
         $request = Application::get()->getRequest();
-        $context = $request->getContext();
-        $contextId = $context?->getId() ?? CONTEXT_ID_NONE;
         $templateMgr = TemplateManager::getManager($request);
 
         try {
@@ -87,10 +88,8 @@ class GoogleFontsPlugin extends GenericPlugin
             $error = __('plugins.generic.googleFonts.technicalError', ['error' => $e->getMessage()]);
         }
 
-        $enabledFonts = $this->getEnabledFonts($contextId);
-
         $templateMgr->assign([
-            'googleFontsEnabled' => $this->getFonts($enabledFonts, $options),
+            'googleFontsEnabled' => $this->getEnabledFonts(),
             'googleFontsError' => $error ?? '',
             'googleFontsOptions' => $options,
         ]);
@@ -107,14 +106,14 @@ class GoogleFontsPlugin extends GenericPlugin
      */
     public function addSettingsHandler(string $hookName, array $args): bool
     {
-		$page = $args[0];
+        $page = $args[0];
 
-		if ($this->getEnabled() && $page === 'google-font') {
-			$this->import('pages/GoogleFontsHandler');
-			define('HANDLER_CLASS', 'GoogleFontsHandler');
-			return true;
-		}
-		return false;
+        if ($this->getEnabled() && $page === 'google-font') {
+            $this->import('pages/GoogleFontsHandler');
+            define('HANDLER_CLASS', 'GoogleFontsHandler');
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -125,16 +124,14 @@ class GoogleFontsPlugin extends GenericPlugin
      * template tag. Themes must use the following in their
      * template files.
      *
-	 * {load_stylesheet context="frontend"}
+     * {load_stylesheet context="frontend"}
      */
     public function addFontStyle(string $hookName, array $args): bool
     {
         /** @var TemplateManager */
         $templateMgr = $args[0];
-        $request = Application::get()->getRequest();
-        $context = $request->getContext();
 
-        $enabledFonts = $this->getEnabledFonts($context?->getId() ?? CONTEXT_ID_NONE);
+        $enabledFonts = $this->getEnabledFonts();
 
         if (!$enabledFonts) {
             return false;
@@ -147,7 +144,7 @@ class GoogleFontsPlugin extends GenericPlugin
              * TODO: Log the error somewhere
              *
              * A failed font load shouldn't crash the site, so
-             * we trap the exception and fail silently.
+             * we catch the exception and fail silently.
              *
              * Ideally, we would log the error somewhere so
              * that it can be surfaced in the admin area.
@@ -195,23 +192,13 @@ class GoogleFontsPlugin extends GenericPlugin
     }
 
     /**
-     * Get the enabled fonts settings
-     *
-     * @return string[]
-     */
-    protected function getEnabledFonts(?int $contextId): array
-    {
-        return $this->getSetting($contextId, self::FONTS_SETTING) ?? [];
-    }
-
-    /**
-     * Get font details for requested fonts
+     * Get font details for a list of fonts
      *
      * Gets a subset of the full font options stored in self::FONTS_FILE.
      *
      * @param string[] $fonts The ID/dirname of the requested fonts
      */
-    protected function getFonts(array $fonts, array $options): array
+    public function getFonts(array $fonts, array $options): array
     {
         $matches = [];
         foreach ($options as $option) {
@@ -220,6 +207,33 @@ class GoogleFontsPlugin extends GenericPlugin
             }
         }
         return $matches;
+    }
+
+    /**
+     * Get font details for a single font
+     *
+     * @see self::getFonts()
+     */
+    public function getFont(string $font, array $options): ?stdClass
+    {
+        $matches = $this->getFonts([$font], $options);
+        if (count($matches)) {
+            return $matches[0];
+        }
+        return null;
+    }
+
+    /**
+     * Get the enabled fonts settings
+     *
+     * @return string[]
+     */
+    public function getEnabledFonts(?int $contextId = null): array
+    {
+        if (is_null($contextId)) {
+            $contextId = Application::get()->getRequest()->getContext()?->getId() ?? CONTEXT_ID_NONE;
+        }
+        return $this->getSetting($contextId, self::FONTS_SETTING) ?? [];
     }
 
     /**
@@ -244,9 +258,9 @@ class GoogleFontsPlugin extends GenericPlugin
 
         $output = [];
 
-        foreach ($fonts as $font) {
+        foreach ($fonts as $id => $name) {
             try {
-                $embeds = $this->loadJsonFile("fonts/{$font}/embed.json");
+                $embeds = $this->loadJsonFile("fonts/{$id}/embed.json");
             } catch (GoogleFontsPluginException $e) {
                 throw $e;
             }

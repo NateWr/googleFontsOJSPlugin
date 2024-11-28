@@ -41,8 +41,9 @@ class GoogleFontsHandler extends Handler
         }
 
         $fonts = $this->plugin->loadJsonFile($this->plugin::FONTS_FILE);
+        $fontDetails = $this->plugin->getFont($font, $fonts);
 
-        if (!$this->fontExists($font, $fonts)) {
+        if (!$fontDetails) {
             $this->sendRedirect($request);
         }
 
@@ -57,7 +58,7 @@ class GoogleFontsHandler extends Handler
             : CONTEXT_ID_NONE;
 
         $fonts = $this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [];
-        $fonts[] = $font;
+        $fonts[$font] = $fontDetails->family;
         $fonts = array_unique($fonts);
         $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $fonts);
 
@@ -93,12 +94,9 @@ class GoogleFontsHandler extends Handler
             ? $request->getContext()->getId()
             : CONTEXT_ID_NONE;
 
-        $fonts = $this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [];
-        $fonts = array_filter(
-            $fonts,
-            fn(string $f) => $f !== $font
-        );
-        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $fonts);
+        $enabled = $this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [];
+        unset($enabled[$font]);
+        $this->plugin->updateSetting($contextId, $this->plugin::FONTS_SETTING, $enabled);
 
         $this->delete($font);
 
