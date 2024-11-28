@@ -26,6 +26,7 @@ class GoogleFontsPlugin extends GenericPlugin
         }
 
         HookRegistry::register('Template::Settings::website::appearance', [$this, 'addSettingsTab']);
+        HookRegistry::register('Template::Settings::admin::appearance', [$this, 'addSettingsTab']);
         HookRegistry::register('LoadHandler', [$this, 'addSettingsHandler']);
         HookRegistry::register('TemplateManager::display', [$this, 'addFontStyle']);
 

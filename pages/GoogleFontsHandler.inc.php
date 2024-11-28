@@ -108,14 +108,25 @@ class GoogleFontsHandler extends Handler
      */
     protected function sendRedirect(Request $request): void
     {
-        $request->redirect(
-            null,
-            'management',
-            'settings',
-            'website',
-            null,
-            'appearance/google-fonts'
-        );
+        if ($request->getContext()) {
+            $request->redirect(
+                null,
+                'management',
+                'settings',
+                'website',
+                null,
+                'appearance/google-fonts'
+            );
+        } else {
+            $request->redirect(
+                null,
+                'admin',
+                'settings',
+                null,
+                null,
+                'appearance/google-fonts'
+            );
+        }
         die();
     }
 
