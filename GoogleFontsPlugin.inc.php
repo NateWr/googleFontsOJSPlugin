@@ -32,7 +32,11 @@ class GoogleFontsPlugin extends GenericPlugin
         HookRegistry::register('Template::Settings::admin::appearance', [$this, 'addSettingsTab']);
         HookRegistry::register('TemplateManager::display', [$this, 'addSettingsStyles']);
         HookRegistry::register('LoadHandler', [$this, 'addSettingsHandler']);
-        HookRegistry::register('TemplateManager::display', [$this, 'addFontStyle']);
+        HookRegistry::register('TemplateManager::display', fn(string $hookName, array $args) => $this->addFontStyle($args[0]));
+        HookRegistry::register('ArticleHandler::download', function(string $hookName, array $args) {
+            $templateMgr = TemplateManager::getManager(Application::get()->getRequest());
+            $this->addFontStyle($templateMgr);
+        });
 
         return true;
     }
@@ -154,11 +158,8 @@ class GoogleFontsPlugin extends GenericPlugin
      *
      * {load_stylesheet context="frontend"}
      */
-    public function addFontStyle(string $hookName, array $args): bool
+    protected function addFontStyle(TemplateManager $templateMgr): bool
     {
-        /** @var TemplateManager */
-        $templateMgr = $args[0];
-
         $enabledFonts = $this->getEnabledFonts();
 
         if (!$enabledFonts->count()) {
@@ -185,7 +186,7 @@ class GoogleFontsPlugin extends GenericPlugin
             $fontfaces,
             [
                 'inline' => true,
-                'contexts' => ['frontend'],
+                'contexts' => ['frontend', 'htmlGalley'],
             ]
         );
 
