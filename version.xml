@@ -4,8 +4,8 @@
 <version>
 	<application>googleFonts</application>
 	<type>plugins.generic</type>
-	<release>0.1.0.0</release>
-	<date>2024-11-27</date>
+	<release>0.1.0.1</release>
+	<date>2024-12-11</date>
 	<lazy-load>1</lazy-load>
 	<class>GoogleFontsPlugin</class>
 </version>
