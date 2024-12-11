@@ -1,4 +1,6 @@
 <?php
+namespace APP\plugins\generic\googleFonts\classes;
+
 /**
  * Class representing a font handled by the Google Fonts plugin
  */

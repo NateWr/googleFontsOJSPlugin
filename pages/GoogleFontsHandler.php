@@ -1,8 +1,18 @@
 <?php
+namespace APP\plugins\generic\googleFonts\pages;
 
-import('classes.handler.Handler');
-import('plugins.generic.googleFonts.exceptions.GoogleFontsPluginException');
-import('plugins.generic.googleFonts.classes.GoogleFont');
+use APP\core\Application;
+use APP\core\Request;
+use APP\file\PublicFileManager;
+use APP\handler\Handler;
+use APP\plugins\generic\googleFonts\classes\GoogleFont;
+use APP\plugins\generic\googleFonts\exceptions\GoogleFontsPluginException;
+use APP\plugins\generic\googleFonts\GoogleFontsPlugin;
+use APP\template\TemplateManager;
+use Exception;
+use PKP\context\Context;
+use PKP\core\Core;
+use PKP\plugins\PluginRegistry;
 
 /**
  * Page handler for Google Fonts plugin settings
@@ -54,7 +64,7 @@ class GoogleFontsHandler extends Handler
 
         $contextId = $request->getContext()
             ? $request->getContext()->getId()
-            : CONTEXT_ID_NONE;
+            : Application::CONTEXT_ID_NONE;
 
         $fonts = collect($this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [])
             ->push(
@@ -103,7 +113,7 @@ class GoogleFontsHandler extends Handler
 
         $contextId = $request->getContext()
             ? $request->getContext()->getId()
-            : CONTEXT_ID_NONE;
+            : Application::CONTEXT_ID_NONE;
 
         $enabled = collect($this->plugin->getSetting($contextId, $this->plugin::FONTS_SETTING) ?? [])
             ->where('id', '!=', $font);

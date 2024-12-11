@@ -1,10 +1,21 @@
 <?php
 
-use Illuminate\Support\Collection;
+namespace APP\plugins\generic\googleFonts;
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.googleFonts.exceptions.GoogleFontsPluginException');
-import('plugins.generic.googleFonts.classes.GoogleFont');
+use APP\core\Application;
+use APP\file\PublicFileManager;
+use APP\plugins\generic\googleFonts\pages\GoogleFontsHandler;
+use APP\plugins\generic\googleFonts\classes\GoogleFont;
+use APP\plugins\generic\googleFonts\exceptions\GoogleFontsPluginException;
+use APP\template\TemplateManager;
+use Exception;
+use Illuminate\Support\Collection;
+use PKP\core\Core;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\RedirectAction;
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
+use stdClass;
 
 class GoogleFontsPlugin extends GenericPlugin
 {
@@ -28,12 +39,12 @@ class GoogleFontsPlugin extends GenericPlugin
             return false;
         }
 
-        HookRegistry::register('Template::Settings::website::appearance', [$this, 'addSettingsTab']);
-        HookRegistry::register('Template::Settings::admin::appearance', [$this, 'addSettingsTab']);
-        HookRegistry::register('TemplateManager::display', [$this, 'addSettingsStyles']);
-        HookRegistry::register('LoadHandler', [$this, 'addSettingsHandler']);
-        HookRegistry::register('TemplateManager::display', fn(string $hookName, array $args) => $this->addFontStyle($args[0]));
-        HookRegistry::register('ArticleHandler::download', function(string $hookName, array $args) {
+        Hook::add('Template::Settings::website::appearance', [$this, 'addSettingsTab']);
+        Hook::add('Template::Settings::admin::appearance', [$this, 'addSettingsTab']);
+        Hook::add('TemplateManager::display', [$this, 'addSettingsStyles']);
+        Hook::add('LoadHandler', [$this, 'addSettingsHandler']);
+        Hook::add('TemplateManager::display', fn(string $hookName, array $args) => $this->addFontStyle($args[0]));
+        Hook::add('ArticleHandler::download', function(string $hookName, array $args) {
             $templateMgr = TemplateManager::getManager(Application::get()->getRequest());
             $this->addFontStyle($templateMgr);
         });
@@ -53,7 +64,6 @@ class GoogleFontsPlugin extends GenericPlugin
             return parent::getActions($request, $verb);
         }
 
-        import('lib.pkp.classes.linkAction.request.RedirectAction');
         return array_merge(
             [
                 new LinkAction(
@@ -61,7 +71,7 @@ class GoogleFontsPlugin extends GenericPlugin
                     new RedirectAction(
                         $request->getDispatcher()->url(
                             $request,
-                            ROUTE_PAGE,
+                            Application::ROUTE_PAGE,
                             null,
                             'management',
                             'settings',
@@ -141,8 +151,7 @@ class GoogleFontsPlugin extends GenericPlugin
         $page = $args[0];
 
         if ($this->getEnabled() && $page === 'google-font') {
-            $this->import('pages/GoogleFontsHandler');
-            define('HANDLER_CLASS', 'GoogleFontsHandler');
+            define('HANDLER_CLASS', GoogleFontsHandler::class);
             return true;
         }
         return false;
@@ -260,7 +269,7 @@ class GoogleFontsPlugin extends GenericPlugin
     public function getEnabledFonts(?int $contextId = null): Collection
     {
         if (is_null($contextId)) {
-            $contextId = Application::get()->getRequest()->getContext()?->getId() ?? CONTEXT_ID_NONE;
+            $contextId = Application::get()->getRequest()->getContext()?->getId() ?? Application::CONTEXT_ID_NONE;
         }
         $enabled = collect($this->getSetting($contextId, self::FONTS_SETTING) ?? []);
 
