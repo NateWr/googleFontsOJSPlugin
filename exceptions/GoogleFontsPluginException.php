@@ -1,4 +1,10 @@
 <?php
+namespace APP\plugins\generic\googleFonts\exceptions;
+
+use APP\plugins\generic\googleFonts\GoogleFontsPlugin;
+use Exception;
+use Throwable;
+
 /**
  * Exception emitted from the Google Fonts plugin
  *
