@@ -22,11 +22,8 @@ use PKP\plugins\PluginRegistry;
  */
 class GoogleFontsHandler extends Handler
 {
-    protected GoogleFontsPlugin $plugin;
-
-    public function __construct()
+    public function __construct(public GoogleFontsPlugin $plugin)
     {
-        $this->plugin = PluginRegistry::getPlugin('generic', 'googlefontsplugin');
         return parent::__construct();
     }
 
@@ -144,7 +141,7 @@ class GoogleFontsHandler extends Handler
                 null,
                 'management',
                 'settings',
-                'website',
+                ['website'],
                 null,
                 'appearance/google-fonts'
             );

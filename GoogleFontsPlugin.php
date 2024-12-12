@@ -75,7 +75,7 @@ class GoogleFontsPlugin extends GenericPlugin
                             null,
                             'management',
                             'settings',
-                            'website',
+                            ['website'],
                             null,
                             'appearance/google-fonts'
                         ),
@@ -149,9 +149,10 @@ class GoogleFontsPlugin extends GenericPlugin
     public function addSettingsHandler(string $hookName, array $args): bool
     {
         $page = $args[0];
+        $handler = & $args[3];
 
         if ($this->getEnabled() && $page === 'google-font') {
-            define('HANDLER_CLASS', GoogleFontsHandler::class);
+            $handler = new GoogleFontsHandler($this);
             return true;
         }
         return false;
